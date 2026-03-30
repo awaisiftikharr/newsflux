@@ -7,12 +7,17 @@ import ScrollProgress from "@/components/ScrollProgress";
 import CopyCitation from "@/components/CopyCitation";
 import AdSlot from "@/components/AdSlot";
 import ArticleCard from "@/components/ArticleCard";
-import { getArticleBySlug, articles } from "@/data/mockData";
+import { useArticleBySlug, useArticles } from "@/hooks/useNewsData";
 import { Button } from "@/components/ui/button";
 
 const ArticlePage = () => {
   const { slug } = useParams<{ slug: string }>();
-  const article = slug ? getArticleBySlug(slug) : undefined;
+  const { data: article, isLoading } = useArticleBySlug(slug);
+  const { data: allArticles = [] } = useArticles();
+
+  if (isLoading) {
+    return <div className="max-w-4xl mx-auto glass-card p-10 animate-pulse"><div className="h-10 bg-muted rounded w-3/4 mb-4" /><div className="h-6 bg-muted rounded w-1/2 mb-8" /><div className="aspect-video bg-muted rounded-2xl" /></div>;
+  }
 
   if (!article) {
     return (
@@ -23,7 +28,7 @@ const ArticlePage = () => {
     );
   }
 
-  const related = articles.filter((a) => a.category === article.category && a.id !== article.id).slice(0, 3);
+  const related = allArticles.filter((a) => a.category_name === article.category_name && a.id !== article.id).slice(0, 3);
   const sanitizedContent = DOMPurify.sanitize(article.content);
   const shareUrl = `${window.location.origin}/news/${article.slug}`;
 
@@ -31,15 +36,15 @@ const ArticlePage = () => {
     <>
       <ScrollProgress />
       <SEOHead
-        title={article.title}
-        description={article.excerpt}
-        ogImage={article.image}
+        title={article.meta_title || article.title}
+        description={article.meta_description || article.excerpt}
+        ogImage={article.og_image || article.image || undefined}
         ogType="article"
         url={`/news/${article.slug}`}
-        article={{ author: article.author, publishedAt: article.publishedAt, category: article.category }}
+        article={{ author: article.author, publishedAt: article.published_at, category: article.category_name }}
         breadcrumbs={[
           { name: "Home", url: "/" },
-          { name: article.category, url: `/category/${article.category.toLowerCase()}` },
+          { name: article.category_name, url: `/category/${article.category_slug}` },
           { name: article.title, url: `/news/${article.slug}` },
         ]}
       />
@@ -50,15 +55,15 @@ const ArticlePage = () => {
             <ArrowLeft className="w-3.5 h-3.5" /> Home
           </Link>
           <span>/</span>
-          <Link to={`/category/${article.category.toLowerCase()}`} className="hover:text-foreground transition-colors">
-            {article.category}
+          <Link to={`/category/${article.category_slug}`} className="hover:text-foreground transition-colors">
+            {article.category_name}
           </Link>
         </nav>
 
         <article className="glass-card p-6 md:p-10">
           <header className="mb-8">
             <span className="inline-block px-3 py-1 text-xs font-semibold uppercase tracking-wider bg-primary text-primary-foreground rounded-full mb-4">
-              {article.category}
+              {article.category_name}
             </span>
             <h1 className="font-serif text-3xl md:text-5xl font-bold leading-tight mb-4 text-balance">
               {article.title}
@@ -66,19 +71,21 @@ const ArticlePage = () => {
             <p className="text-lg text-muted-foreground mb-6">{article.excerpt}</p>
             <div className="flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
-                <img src={article.authorAvatar} alt={article.author} className="w-8 h-8 rounded-full" />
+                {article.author_avatar && <img src={article.author_avatar} alt={article.author} className="w-8 h-8 rounded-full" />}
                 <span className="font-medium text-foreground">{article.author}</span>
               </div>
-              <time dateTime={article.publishedAt}>
-                {new Date(article.publishedAt).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
+              <time dateTime={article.published_at}>
+                {new Date(article.published_at).toLocaleDateString("en-US", { month: "long", day: "numeric", year: "numeric" })}
               </time>
-              <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{article.readingTime} min read</span>
+              <span className="flex items-center gap-1"><Clock className="w-3.5 h-3.5" />{article.reading_time} min read</span>
             </div>
           </header>
 
-          <div className="hover-zoom rounded-2xl overflow-hidden mb-8">
-            <img src={article.image} alt={article.title} className="w-full aspect-video object-cover" />
-          </div>
+          {article.image && (
+            <div className="hover-zoom rounded-2xl overflow-hidden mb-8">
+              <img src={article.image} alt={article.title} className="w-full aspect-video object-cover" />
+            </div>
+          )}
 
           <div className="article-prose" dangerouslySetInnerHTML={{ __html: sanitizedContent }} />
 
@@ -87,17 +94,17 @@ const ArticlePage = () => {
           <footer className="border-t border-border/30 pt-6 mt-8 flex flex-wrap items-center gap-3">
             <span className="text-sm text-muted-foreground mr-2 flex items-center gap-1"><Share2 className="w-3.5 h-3.5" /> Share:</span>
             <Button variant="outline" size="icon" asChild aria-label="Share on Facebook">
-              <a href={`https://facebook.com/sharer/sharer.php?u=${shareUrl}`} target="_blank" rel="noopener noreferrer">
+              <a href={`https://facebook.com/sharer/sharer.php?u=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer">
                 <Facebook className="w-4 h-4" />
               </a>
             </Button>
             <Button variant="outline" size="icon" asChild aria-label="Share on Twitter">
-              <a href={`https://twitter.com/intent/tweet?url=${shareUrl}&text=${encodeURIComponent(article.title)}`} target="_blank" rel="noopener noreferrer">
+              <a href={`https://twitter.com/intent/tweet?url=${encodeURIComponent(shareUrl)}&text=${encodeURIComponent(article.title)}`} target="_blank" rel="noopener noreferrer">
                 <Twitter className="w-4 h-4" />
               </a>
             </Button>
             <Button variant="outline" size="icon" asChild aria-label="Share on LinkedIn">
-              <a href={`https://linkedin.com/sharing/share-offsite/?url=${shareUrl}`} target="_blank" rel="noopener noreferrer">
+              <a href={`https://linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(shareUrl)}`} target="_blank" rel="noopener noreferrer">
                 <Linkedin className="w-4 h-4" />
               </a>
             </Button>
