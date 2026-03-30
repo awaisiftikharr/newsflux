@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Clock } from "lucide-react";
 import { motion } from "framer-motion";
-import type { Article } from "@/data/mockData";
+import type { Article } from "@/hooks/useNewsData";
 
 interface ArticleCardProps {
   article: Article;
@@ -19,7 +19,7 @@ const ArticleCard = ({ article, index = 0 }: ArticleCardProps) => {
       <Link to={`/news/${article.slug}`} className="block">
         <div className="hover-zoom aspect-video">
           <img
-            src={article.image}
+            src={article.image || "/placeholder.svg"}
             alt={article.title}
             className="w-full h-full object-cover"
             loading="lazy"
@@ -27,18 +27,18 @@ const ArticleCard = ({ article, index = 0 }: ArticleCardProps) => {
         </div>
         <div className="p-5">
           <span className="text-xs font-semibold uppercase tracking-wider text-primary">
-            {article.category}
+            {article.category_name}
           </span>
           <h3 className="font-serif font-bold text-lg mt-2 mb-2 leading-snug group-hover:text-primary transition-colors line-clamp-2">
             {article.title}
           </h3>
           <p className="text-sm text-muted-foreground line-clamp-2 mb-3">{article.excerpt}</p>
           <div className="flex items-center gap-3 text-xs text-muted-foreground">
-            <img src={article.authorAvatar} alt={article.author} className="w-5 h-5 rounded-full" loading="lazy" />
+            {article.author_avatar && <img src={article.author_avatar} alt={article.author} className="w-5 h-5 rounded-full" loading="lazy" />}
             <span>{article.author}</span>
             <span className="flex items-center gap-1">
               <Clock className="w-3 h-3" />
-              {article.readingTime} min
+              {article.reading_time} min
             </span>
           </div>
         </div>

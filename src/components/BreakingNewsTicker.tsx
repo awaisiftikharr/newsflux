@@ -1,7 +1,10 @@
-import { liveUpdates } from "@/data/mockData";
+import { useLiveUpdates } from "@/hooks/useNewsData";
 
 const BreakingNewsTicker = () => {
-  const items = [...liveUpdates, ...liveUpdates]; // duplicate for seamless scroll
+  const { data: updates = [] } = useLiveUpdates();
+  const items = [...updates, ...updates]; // duplicate for seamless scroll
+
+  if (updates.length === 0) return null;
 
   return (
     <div className="ticker-strip overflow-hidden py-2 text-sm font-sans" role="marquee" aria-label="Breaking news">

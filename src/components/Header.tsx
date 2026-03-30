@@ -1,12 +1,13 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Menu, X, Search, Sun, Moon } from "lucide-react";
-import { categories } from "@/data/mockData";
+import { useCategories } from "@/hooks/useNewsData";
 import { Button } from "@/components/ui/button";
 
 const Header = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
+  const { data: categories = [] } = useCategories();
 
   const toggleTheme = () => {
     document.documentElement.classList.toggle("dark");
@@ -24,11 +25,11 @@ const Header = () => {
         <nav className="hidden md:flex items-center gap-6" aria-label="Main navigation">
           {categories.map((cat) => (
             <Link
-              key={cat}
-              to={`/category/${cat.toLowerCase()}`}
+              key={cat.id}
+              to={`/category/${cat.slug}`}
               className="text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
             >
-              {cat}
+              {cat.name}
             </Link>
           ))}
         </nav>
@@ -56,12 +57,12 @@ const Header = () => {
         <nav className="md:hidden glass-card mx-4 mb-4 p-4 animate-fade-in" aria-label="Mobile navigation">
           {categories.map((cat) => (
             <Link
-              key={cat}
-              to={`/category/${cat.toLowerCase()}`}
+              key={cat.id}
+              to={`/category/${cat.slug}`}
               className="block py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
               onClick={() => setMobileOpen(false)}
             >
-              {cat}
+              {cat.name}
             </Link>
           ))}
         </nav>
