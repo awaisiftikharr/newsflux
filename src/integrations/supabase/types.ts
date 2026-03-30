@@ -14,7 +14,133 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      articles: {
+        Row: {
+          author: string
+          author_avatar: string | null
+          category_id: string
+          content: string
+          created_at: string
+          excerpt: string
+          featured: boolean
+          id: string
+          image: string | null
+          json_ld: Json | null
+          meta_description: string | null
+          meta_title: string | null
+          og_image: string | null
+          published_at: string
+          reading_time: number
+          slug: string
+          title: string
+          trending: boolean
+          updated_at: string
+        }
+        Insert: {
+          author: string
+          author_avatar?: string | null
+          category_id: string
+          content: string
+          created_at?: string
+          excerpt: string
+          featured?: boolean
+          id?: string
+          image?: string | null
+          json_ld?: Json | null
+          meta_description?: string | null
+          meta_title?: string | null
+          og_image?: string | null
+          published_at?: string
+          reading_time?: number
+          slug: string
+          title: string
+          trending?: boolean
+          updated_at?: string
+        }
+        Update: {
+          author?: string
+          author_avatar?: string | null
+          category_id?: string
+          content?: string
+          created_at?: string
+          excerpt?: string
+          featured?: boolean
+          id?: string
+          image?: string | null
+          json_ld?: Json | null
+          meta_description?: string | null
+          meta_title?: string | null
+          og_image?: string | null
+          published_at?: string
+          reading_time?: number
+          slug?: string
+          title?: string
+          trending?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "articles_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      categories: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
+      live_updates: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          id: string
+          text: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          id?: string
+          text: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          id?: string
+          text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_updates_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
