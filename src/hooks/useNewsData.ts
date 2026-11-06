@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import type { Tables } from "@/integrations/supabase/types";
 
 export interface Article {
   id: string;
@@ -36,7 +37,15 @@ export interface LiveUpdate {
   created_at: string;
 }
 
-const mapArticle = (row: any): Article => ({
+type ArticleRow = Tables<"articles"> & {
+  categories: Pick<Tables<"categories">, "name" | "slug"> | null;
+};
+
+type LiveUpdateRow = Tables<"live_updates"> & {
+  categories: Pick<Tables<"categories">, "name"> | null;
+};
+
+const mapArticle = (row: ArticleRow): Article => ({
   id: row.id,
   slug: row.slug,
   title: row.title,
@@ -169,7 +178,7 @@ export function useLiveUpdates() {
         .order("created_at", { ascending: false })
         .limit(10);
       if (error) throw error;
-      return (data ?? []).map((row: any) => ({
+      return (data ?? []).map((row: LiveUpdateRow) => ({
         id: row.id,
         text: row.text,
         category_name: row.categories?.name ?? "News",
